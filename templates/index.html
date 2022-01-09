@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+    <title>Document</title>
+</head>
+<body>
+    <div class="main-container flex">
+        <span class="question-container">
+            <p class="question">{{data[0]}}</p>
+        </span>
+        <div class="answer-container">
+            <form class="answer-Form flex" action="/" method="post">
+                    <div class="grid-container">
+                        <label for="1" class="radio">
+                            <input type="radio" name="Transport" id="1" class="radio__input">
+                            <div class="radio__radio"></div>
+                            {{data[1]}}
+                        </label>
+                        <label for="2" class="radio">
+                            <input type="radio" name="Transport" id="2" class="radio__input">
+                            <div class="radio__radio"></div>
+                            {{data[2]}}
+                        </label>
+                        <label for="3" class="radio">
+                            <input type="radio" name="Transport" id="3" class="radio__input">
+                            <div class="radio__radio"></div>
+                            {{data[3]}}
+                        </label>
+                        <label for="4" class="radio">
+                            <input type="radio" name="Transport" id="4" class="radio__input">
+                            <div class="radio__radio"></div>
+                            {{data[4]}}
+                        </label>
+                    </div>
+                <a class="submit-input" href="/check/{{data}}}" onclick="//checkChosenAnswer();">Submit</a>
+            </form>
+            <p style="display:none">{{data[5]}}</p>
+        </div>
+    </div>
+
+    <script>
+        function checkChosenAnswer() {
+            var allRad = document.querySelectorAll(".radio__input");
+            var chosen = false;
+            console.log(allRad.forEach(element => {
+                if(element.checked){
+                    console.log(element.id);
+                    window.location.redirect = "/check/1";
+                    console.log("redirected!!!!!");
+                    chosen = true;
+                }
+            }));
+            if(!chosen){
+                alert("YOU HAVE TO CHOOSE!!!!!");
+            }
+        }
+    </script>
+</body>
+</html>

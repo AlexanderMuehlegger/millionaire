@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/game.css')}}">
+    <title>Title</title>
+</head>
+<body>
+    <div class="main-container flex">
+        <span class="question-container">
+            <p class="question">{{data[0]}}</p>
+        </span>
+        <div class="answer-container">
+            <form class="answer-Form flex" action="/" method="post">
+                    <div class="grid-container">
+                        <label for="1" class="radio">
+                            <input type="radio" name="Transport" id="1" value="1" class="radio__input">
+                            <div class="radio__radio"></div>
+                            {{data[1]}}
+                        </label>
+                        <label for="2" class="radio">
+                            <input type="radio" name="Transport" id="2" value="2" class="radio__input">
+                            <div class="radio__radio"></div>
+                            {{data[2]}}
+                        </label>
+                        <label for="3" class="radio">
+                            <input type="radio" name="Transport" id="3" value="3" class="radio__input">
+                            <div class="radio__radio"></div>
+                            {{data[3]}}
+                        </label>
+                        <label for="4" class="radio">
+                            <input type="radio" name="Transport" id="4" value="4" class="radio__input">
+                            <div class="radio__radio"></div>
+                            {{data[4]}}
+                        </label>
+                    </div>
+            </form>
+            <p style="display:none">{{data[5]}}</p>
+        </div>
+        <Button class="submit-input" onclick="checkFormAndSubmit()">Senden</Button>
+    </div>
+
+    <script>
+        function checkFormAndSubmit(){
+            var form = document.querySelector(".answer-Form");
+            var allRadio = document.querySelectorAll(".radio__input");
+            var chosen = false;
+            allRadio.forEach(element => {
+               if(element.checked){
+                   chosen = true;
+               }
+            });
+            if(!chosen){
+                alert("You must choose an Answer!");
+                return;
+            }
+            form.submit();
+        }
+    </script>
+</body>
+</html>

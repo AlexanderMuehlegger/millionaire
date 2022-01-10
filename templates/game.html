@@ -3,15 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="{{url_for('static', filename='css/game.css')}}">
-    <title>Title</title>
+    <title>Game</title>
 </head>
 <body>
+    <div class="difficulty">
+        <p>Current difficulty: {{data[6]}}</p>
+    </div>
+    <p style="display:none">{{data[5]}}</p>
     <div class="main-container flex">
         <span class="question-container">
             <p class="question">{{data[0]}}</p>
         </span>
         <div class="answer-container">
-            <form class="answer-Form flex" action="/" method="post">
+            <form class="answer-Form flex" action="/game" method="post">
                     <div class="grid-container">
                         <label for="1" class="radio">
                             <input type="radio" name="Transport" id="1" value="1" class="radio__input">
@@ -35,7 +39,6 @@
                         </label>
                     </div>
             </form>
-            <p style="display:none">{{data[5]}}</p>
         </div>
         <Button class="submit-input" onclick="checkFormAndSubmit()">Senden</Button>
     </div>
@@ -56,6 +59,12 @@
             }
             form.submit();
         }
+
+        history.pushState(null, document.title, "/");
+        window.addEventListener('popstate', function (event){
+          history.pushState(null, document.title, "/");
+        });
+
     </script>
 </body>
 </html>

@@ -2,11 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>WRONG</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/questions.css')}}">
 </head>
 <body>
-  <h1>Wrong Answer!</h1>
-  <a href="/">Start again!</a>
-  <a href="/questions">Have a look at the questions!</a>
+      <div class="main-container">
+          <h1>Wrong Answer!</h1>
+          <div class="grid-container">
+              <a class="btn" href="/">Start again!</a>
+              <a class="btn" href="/questions">Have a look at the questions!</a>
+          </div>
+      </div>
 </body>
+
+    <script>
+        history.pushState(null, document.title, "/");
+        window.addEventListener('popstate', function (event){
+          history.pushState(null, document.title, "/");
+        });
+    </script>
 </html>

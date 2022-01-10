@@ -2,9 +2,50 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Questions</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/questions.css')}}">
 </head>
 <body>
-  <h1>Hier stehen mal alle Fragen!</h1>
+    <script>
+
+    </script>
+    <div class="main-container">
+        <h1>Hier stehen mal alle Fragen!</h1>
+        <div class="grid-container">
+            <a class="btn" href="/">Go back to the Home Page</a>
+            <a class="btn" href="/game">Start a Game</a>
+        </div>
+        <table id="table_id" class="display">
+        <thead>
+            <tr>
+                <th>Difficulty</th>
+                <th>Question</th>
+                <th>Answer 1</th>
+                <th>Answer 2</th>
+                <th>Answer 3</th>
+                <th>Answer 4</th>
+                <th>Correct Answer</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Row 1 Data 1</td>
+                <td>Row 1 Data 2</td>
+            </tr>
+            <tr>
+                <td>Row 2 Data 1</td>
+                <td>Row 2 Data 2</td>
+            </tr>
+        </tbody>
+        </table>
+        <h2>Hat nicht richtig geklappt!</h2>
+    </div>
 </body>
+
+    <script>
+        history.pushState(null, document.title, location.href);
+        window.addEventListener('popstate', function (event){
+          history.pushState(null, document.title, location.href);
+        });
+    </script>
 </html>

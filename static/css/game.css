@@ -112,3 +112,13 @@ div {
     transform: scale(1.15);
 }
 
+.difficulty {
+    left: 0;
+    top: 0;
+    position: absolute;
+}
+
+.difficulty > p {
+    margin: 1rem;
+}
+

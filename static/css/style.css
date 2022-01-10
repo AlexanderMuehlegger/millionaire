@@ -2,8 +2,22 @@
     font-family: Arial;
 }
 
+body{
+    padding: 5rem;
+}
+
+.main-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
 .grid-container {
+    width: max-content;
+    height: max-content;
     display: grid;
+    gap: 2rem;
     grid-template-columns: repeat(3, 1fr);
 }
 
@@ -11,4 +25,5 @@
     width: 100px;
     height: 20px;
     background: black;
+    margin: 0;
 }

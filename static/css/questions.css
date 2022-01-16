@@ -2,6 +2,10 @@
     font-family: Arial;
 }
 
+body {
+    padding: 2rem;
+}
+
 .main-container {
     width: 95vw;
     height: 95vh;
@@ -36,8 +40,4 @@
 
 .btn:hover{
     transform: scale(1.05);
-}
-
-#table_id {
-    display: none;
 }

@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect
+from flask_session import Session
 from game import game
 from app import app
 
@@ -11,14 +12,16 @@ newGame.createQuestionsArray(newGame.readFile())
 
 app = Flask(__name__)
 
+SESSION_TYPE = 'redis'
+app.config.from_object(__name__)
+Session(app)
 
 question = None
 correctlyAnswered = 0
 
-
 @app.route("/")
 def index():
-    reset()
+
     return render_template("index.html")
 
 @app.route("/game", methods=['POST', 'GET'])
@@ -57,13 +60,17 @@ def wrong():
 
 @app.route("/questions")
 def questions():
-    return render_template("questions.html")
+    q  = []
+    thirst = True
+    for x in newGame.questionsArray:
+        if thirst:
+            thirst = False
+        else:
+            q_temp = {"level" : x.difficulty, "frage" : str(x.question).replace(" ", ""), "answer1" : x.answers[0], "answer2" : x.answers[1], "answer3" : x.answers[2], "answer4" : x.answers[3]}
+            q.append(q_temp)
 
-def reset():
-    global question, correctlyAnswered
-    newGame.difficulty = 0
-    question = None
-    correctlyAnswered = 0
+    return render_template("questions.html", data = q)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

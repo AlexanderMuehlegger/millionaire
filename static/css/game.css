@@ -122,3 +122,23 @@ div {
     margin: 1rem;
 }
 
+.btn {
+    width: 100%;
+    height: max-content;
+    border-radius: 15px;
+    background: #d90429;
+    padding: .5rem;
+    text-align: center;
+    margin: 1rem;
+    transition: transform 150ms ease-out;
+}
+
+.btn, .btn:hover{
+    text-decoration: none;
+    color: white;
+}
+
+.btn:hover{
+    transform: scale(1.05);
+}
+

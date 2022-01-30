@@ -1,5 +1,5 @@
 import random
-from questions import questions
+from questions import Questions
 
 class game:
     questionsArray = []
@@ -23,6 +23,7 @@ class game:
         self.difficultyIsVisible = vis
 
     def createQuestionsArray(self, singleLines):
+        id = 0
         for x in singleLines:
             selectedQuestion = str(x).split("\t")
             answers = []
@@ -30,7 +31,8 @@ class game:
             answers.append(selectedQuestion[3])
             answers.append(selectedQuestion[4])
             answers.append(selectedQuestion[5])
-            self.questionsArray.append(questions(selectedQuestion[1], answers, selectedQuestion[0]))
+            self.questionsArray.append(Questions(id, selectedQuestion[1], answers, selectedQuestion[0], -1))
+            id += 1
 
     def getQuestion(self, index):
         if len(self.questionsArray) < 1:
@@ -93,3 +95,38 @@ class game:
             print("\t" + str(x) + "\t\t\t(%d)" % (question.answers.index(x)+1))
 
         print()
+
+    def get_question_by_id(self, id):
+        for q in self.questionsArray:
+            if q.id == id:
+                return q
+        return None
+
+    def delete_question(self, id):
+        try:
+            for q in self.questionsArray:
+                if q.id == id:
+                    self.questionsArray.pop(self.questionsArray.index(q))
+                    return True
+        except Exception:
+            return False
+
+        return False
+
+    def update_question(self, id, question):
+        try:
+            for q in self.questionsArray:
+                if q.id == id:
+                    self.questionsArray[self.questionsArray.index(q)] = question
+                    return True
+        except Exception:
+            return False
+
+        return False
+
+    def add_question(self, question):
+        self.questionsArray.append(question)
+        return True
+
+
+

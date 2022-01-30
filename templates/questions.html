@@ -25,6 +25,7 @@
         <table id="table_id" class="display">
         <thead>
             <tr>
+                <th>ID</th>
                 <th>Difficulty</th>
                 <th>Question</th>
                 <th>Answer 1</th>
@@ -36,6 +37,7 @@
         <tbody>
             {% for q in data %}
             <tr>
+                <td> {{q.id}}</td>
                 <td> {{q.level}}</td>
                 <td> {{q.frage}}</td>
                 <td> {{q.answer1}}</td>

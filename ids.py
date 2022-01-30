@@ -1,0 +1,1 @@
+openweathermap_key = '12a6a28e7d103d5ca9f1c656b58f6046'

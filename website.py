@@ -113,7 +113,8 @@ class QuestionSer(Resource):
 
         return {'Response' : '200: Frage mit ID: {} wurde gelöscht!'.format(id)} if status else {'Response' : '500: Frage mit ID: {} konnte nicht gelöscht werden!'.format(id)}
     def patch(self, id):
-        question = Questions
+        question = Questions(id, request.form["frage"], request.form.getlist("antworten"), int(request.form["difficulty"]), request.form["rightanswer"])
+
         status = newGame.update_question(id, question)
 
         return {'Response' : '200: Frage mit ID: {} wurde geändert!'.format(id)} if status else {'Response' : '500: Frage mit ID: {} konnte nicht geändert werden!'.format(id)}

@@ -15,7 +15,8 @@ class game:
         allLines = file.readlines()
         gameDifficulty = 0
 
-        return allLines;
+        #return allLines;
+        return None
 
     def setDifficulty(self, dif):
         self.difficulty = dif
@@ -33,6 +34,14 @@ class game:
             answers.append(selectedQuestion[5])
             self.questionsArray.append(Questions(id, selectedQuestion[1], answers, selectedQuestion[0], -1))
             id += 1
+
+    def createQuestionsArrayDB(self, queryResult):
+        print("creating array...")
+        for x in queryResult:
+            question = Questions(x[0], x[2], [x[3], x[4], x[5], x[6]], x[1], -1)
+            self.questionsArray.append(question)
+        print("Creating array was successfully!")
+
 
     def getQuestion(self, index):
         if len(self.questionsArray) < 1:

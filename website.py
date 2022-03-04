@@ -1,18 +1,22 @@
 import requests
-from flask import Flask, render_template, request, redirect, session
+import sqlite3
+from flask import Flask, render_template, request, redirect, session, g
 from flask_restful import Resource, Api
 from game import game
 from app import app
 import random
 import string
 from questions import Questions
+from sqlalchemy import Column, Integer, Text
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
+metadata = Base.metadata
 
 newApp = app(None)
 newGame = game(newApp)
 
 newApp.setGame(newGame)
-
-newGame.createQuestionsArray(newGame.readFile())
 
 app = Flask(__name__)
 app.secret_key = ''.join(random.choice(string.ascii_letters) for i in range(25))
@@ -22,30 +26,78 @@ api = Api(app)
 question = None
 correctlyAnswered = 0
 
+class Millionaire(Base):
+    __tablename__ = 'millionaire'
+
+    id = Column(Integer, primary_key=True)
+    difficulty = Column(Integer)
+    question = Column(Text)
+    correct_answer = Column(Text)
+    answer2 = Column(Text)
+    answer3 = Column(Text)
+    answer4 = Column(Text)
+    background_information = Column(Text)
 
 def get_question():
-    question = newGame.getRandomQuestion()
-    session['question'] = question.question
+    global question
+    ques = newGame.getRandomQuestion()
+    question = ques
+    session['question'] = ques.question
     data = [
         {
-            'frage': question.question,
-            'difficulty': question.difficulty,
-            'antwort1': question.answers[0],
-            'antwort2': question.answers[1],
-            'antwort3': question.answers[2],
-            'antwort4': question.answers[3]
+            'frage': ques.question,
+            'difficulty': ques.difficulty,
+            'antwort1': ques.answers[0],
+            'antwort2': ques.answers[1],
+            'antwort3': ques.answers[2],
+            'antwort4': ques.answers[3]
         }
     ]
     return data
 
+DATABASE = './millionaire.sqlite3'
+
+def make_dicts(cursor, row):
+    return dict((cursor.description[idx][0], value)
+                for idx, value in enumerate(row))
+
+def get_db():
+    db = getattr(g, '_database', None)
+    if db is None:
+        db = g._database = sqlite3.connect(DATABASE)
+        print("Connection established")
+    return db
+
+def executeDBQuerry():
+
+
+@app.teardown_appcontext
+def close_connection(exception):
+    db = getattr(g, "_database", None)
+    if db is not None:
+        db.close()
+
+def startWebsite():
+    db = get_db()
+    cursor = db.cursor()
+    query1 = "SELECT * FROM millionaire"
+    result = cursor.execute(query1)
+    newGame.createQuestionsArrayDB(result.fetchall())
+    db.commit()
+
 @app.route("/")
 def index():
+    if len(newGame.questionsArray) <= 0:
+        startWebsite()
     session['score'] = 0
     session['difficulty'] = 0
     return render_template("index.html")
 
 @app.route("/game", methods=['POST', 'GET'])
 def game():
+    if len(newGame.questionsArray) <= 0:
+        startWebsite()
+        print('GET')
     global question
     global correctlyAnswered
     if request.method == 'POST':
@@ -105,7 +157,8 @@ class QuestionSer(Resource):
 
     def put(self, id):
         question = Questions(id, request.form["frage"], request.form.getlist("antworten"), int(request.form["difficulty"]), request.form["rightanswer"])
-        newGame.add_question(question);
+
+        executeDBQuerry();
         return {'Response' : '200: Frage mit ID: {} hinzugefügt!'.format(id)}
 
     def delete(self, id):
@@ -129,7 +182,6 @@ class All_questions(Resource):
 
 api.add_resource(QuestionSer, '/question/<int:id>')
 api.add_resource(All_questions, '/allquestions')
-
 
 if __name__ == "__main__":
     app.run(debug=True)

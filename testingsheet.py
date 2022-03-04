@@ -5,10 +5,9 @@ base_url = "http://127.0.0.1:5000/question/"
 response = requests.get(base_url + "1").json()
 print(response)
 
-response = requests.delete(base_url + "1").json()
+response = requests.delete(base_url + "500").json()
 print(response)
-
-response = requests.get(base_url + "1").json()
+response = requests.delete(base_url + "501").json()
 print(response)
 
 response = requests.put(base_url + "500", data={
@@ -19,16 +18,26 @@ response = requests.put(base_url + "500", data={
 }).json()
 print(response)
 
-response = requests.get(base_url + "500").json()
-print(response)
-
-response = requests.patch(base_url + "501", data={
-    "frage": "Wer ist der Beste?",
+response = requests.put(base_url + "501", data={
+    "frage": "Wer ist der Beste",
     "difficulty":1,
-    "antworten": ["Alex", "Marcel", "Simon", "Dietzi"],
+    "antworten": ["Alex", "Marcel", "Simon", "Dietz"],
     "rightanswer":0
 }).json()
 print(response)
 
+response = requests.patch(base_url + "501", data={
+    "frage": "Wer hat das Problem gelöst?",
+    "difficulty":1,
+    "antworten": ["Alex", "Marcel", "Simon", "Dietzi"],
+    "rightanswer":2
+}).json()
+print(response)
 
+response = requests.get(base_url + "500").json()
+print(response)
+
+
+#
+#
 

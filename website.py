@@ -2,16 +2,22 @@ import requests
 import sqlite3
 from flask import Flask, render_template, request, redirect, session, g
 from flask_restful import Resource, Api
+from sqlalchemy.orm import sessionmaker, scoped_session
 from game import game
 from app import app
 import random
 import string
 from questions import Questions
-from sqlalchemy import Column, Integer, Text
+from sqlalchemy import Column, Integer, Text, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 metadata = Base.metadata
+
+engine = create_engine(r'sqlite:///C:\Users\alexa\PycharmProjects\millionaire\millionaire.sqlite3')
+db_session = scoped_session(sessionmaker(autocommit=True, autoflush=True, bind=engine))
+Base.query = db_session.query_property()
+
 
 newApp = app(None)
 newGame = game(newApp)
@@ -22,6 +28,7 @@ app = Flask(__name__)
 app.secret_key = ''.join(random.choice(string.ascii_letters) for i in range(25))
 
 api = Api(app)
+
 
 question = None
 correctlyAnswered = 0
@@ -37,6 +44,26 @@ class Millionaire(Base):
     answer3 = Column(Text)
     answer4 = Column(Text)
     background_information = Column(Text)
+
+    def getJson(self):
+        return{
+            'id': self.id,
+            'difficulty': self.difficulty,
+            'question': self.question,
+            'answers': [self.correct_answer, self.answer2, self.answer3, self.answer4]
+        }
+
+
+def get_questions_from_db():
+    newGame.questionsArray = []
+    questions = Millionaire.query.all()
+
+    for x in questions:
+        print(x.getJson())
+        answers = [x.correct_answer, x.answer2, x.answer3, x.answer4]
+        random.shuffle(answers)
+        newGame.questionsArray.append(
+            Questions(x.id, x.question, answers, x.difficulty, answers.index(x.correct_answer)))
 
 def get_question():
     global question
@@ -55,49 +82,14 @@ def get_question():
     ]
     return data
 
-DATABASE = './millionaire.sqlite3'
-
-def make_dicts(cursor, row):
-    return dict((cursor.description[idx][0], value)
-                for idx, value in enumerate(row))
-
-def get_db():
-    db = getattr(g, '_database', None)
-    if db is None:
-        db = g._database = sqlite3.connect(DATABASE)
-        print("Connection established")
-    return db
-
-def executeDBQuerry():
-
-
-@app.teardown_appcontext
-def close_connection(exception):
-    db = getattr(g, "_database", None)
-    if db is not None:
-        db.close()
-
-def startWebsite():
-    db = get_db()
-    cursor = db.cursor()
-    query1 = "SELECT * FROM millionaire"
-    result = cursor.execute(query1)
-    newGame.createQuestionsArrayDB(result.fetchall())
-    db.commit()
-
 @app.route("/")
 def index():
-    if len(newGame.questionsArray) <= 0:
-        startWebsite()
     session['score'] = 0
     session['difficulty'] = 0
     return render_template("index.html")
 
 @app.route("/game", methods=['POST', 'GET'])
 def game():
-    if len(newGame.questionsArray) <= 0:
-        startWebsite()
-        print('GET')
     global question
     global correctlyAnswered
     if request.method == 'POST':
@@ -139,6 +131,7 @@ def wrong():
 
 @app.route("/questions")
 def questions():
+    get_questions_from_db()
     q  = []
     thirst = True
     for x in newGame.questionsArray:
@@ -152,25 +145,58 @@ def questions():
 
 class QuestionSer(Resource):
     def get(self, id):
-        question = newGame.get_question_by_id(id)
+        question = Millionaire.query.get(id)
         return question.getJson() if question!=None else {"Response" : "404: Frage mit ID: {} existiert nicht!".format(id)}
 
     def put(self, id):
         question = Questions(id, request.form["frage"], request.form.getlist("antworten"), int(request.form["difficulty"]), request.form["rightanswer"])
-
-        executeDBQuerry();
-        return {'Response' : '200: Frage mit ID: {} hinzugefügt!'.format(id)}
+        exists = Millionaire.query.get(question.id)
+        if not exists:
+            question_answers = question.sort_answers()
+            data = Millionaire(id=question.id, difficulty=question.difficulty, question=question.question, correct_answer=question_answers[0],
+                                 answer2=question_answers[1], answer3=question_answers[2], answer4=question_answers[3])
+            db_session.add(data)
+            db_session.flush();
+            app.logger.info("Frage mit ID: {} hinzugefügt!".format(id))
+            get_questions_from_db()
+            return {'Response' : '200: Frage mit ID: {} hinzugefügt!'.format(id)}
+        return {'Response' : '500: Frage mit ID: {} konnte nicht hinzugefügt werden!'.format(id)}
 
     def delete(self, id):
-        status = newGame.delete_question(id)
+        status = Millionaire.query.get(id)
+        if not status:
+            return {'Response' : '404: Frage mit ID: {} existiert nicht!'.format(id)}
 
+        db_session.delete(status)
+        db_session.flush()
+        get_questions_from_db()
         return {'Response' : '200: Frage mit ID: {} wurde gelöscht!'.format(id)} if status else {'Response' : '500: Frage mit ID: {} konnte nicht gelöscht werden!'.format(id)}
     def patch(self, id):
+        status = Millionaire.query.get(id)
+        if not status:
+            app.logger.error("Frage existiert nicht!")
+            return {'Response' : '404: Frage mit ID: {} konnte nicht gefunden werden!'.format(id)}
+
         question = Questions(id, request.form["frage"], request.form.getlist("antworten"), int(request.form["difficulty"]), request.form["rightanswer"])
 
-        status = newGame.update_question(id, question)
+        question_answers = question.sort_answers()
+        data = Millionaire(id=id, difficulty=question.difficulty, question=question.question,
+                           correct_answer=question_answers[0],
+                           answer2=question_answers[1], answer3=question_answers[2], answer4=question_answers[3])
 
-        return {'Response' : '200: Frage mit ID: {} wurde geändert!'.format(id)} if status else {'Response' : '500: Frage mit ID: {} konnte nicht geändert werden!'.format(id)}
+        status.difficulty = data.difficulty
+        status.question = data.question
+        status.correct_answer = data.correct_answer
+        status.answer2 = data.answer2
+        status.answer3 = data.answer3
+        status.answer4 = data.answer4
+
+        db_session.add(status)
+        db_session.flush();
+
+        get_questions_from_db()
+
+        return {'Response' : '200: Frage mit ID: {} wurde geändert!'.format(id)}
 
 class All_questions(Resource):
     def get(self):
@@ -182,6 +208,11 @@ class All_questions(Resource):
 
 api.add_resource(QuestionSer, '/question/<int:id>')
 api.add_resource(All_questions, '/allquestions')
+
+@app.before_first_request
+def initialize_server():
+    get_questions_from_db()
+    app.logger.info("Server successfully initiated")
 
 if __name__ == "__main__":
     app.run(debug=True)

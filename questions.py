@@ -14,7 +14,7 @@ class Questions:
             self.answers = self.shuffleAnswers(answers)
         else:
             self.answers = answers
-            self.rightAnswer = rightanswer
+            self.rightAnswer = int(rightanswer)
         self.difficulty = difficulty
         self.id = id
 
@@ -39,3 +39,12 @@ class Questions:
             'answers': self.answers,
             'rightanswer': self.rightAnswer
         }
+
+    def sort_answers(self):
+        print(self.rightAnswer)
+        correct_answer = self.answers[self.rightAnswer]
+        sorted_array = [correct_answer]
+        for i in range(4):
+            if self.answers[i] != correct_answer:
+                sorted_array.append(self.answers[i])
+        return sorted_array

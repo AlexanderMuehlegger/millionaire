@@ -14,7 +14,7 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 metadata = Base.metadata
 
-engine = create_engine(r'sqlite:///C:\Users\alexa\PycharmProjects\millionaire\millionaire.sqlite3')
+engine = create_engine(r'sqlite:///.\millionaire.sqlite3')
 db_session = scoped_session(sessionmaker(autocommit=True, autoflush=True, bind=engine))
 Base.query = db_session.query_property()
 
